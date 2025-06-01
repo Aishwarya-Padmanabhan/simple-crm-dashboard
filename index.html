@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple CRM Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f8fa;
+            color: #33475b;
+            line-height: 1.6;
+        }
+
+        .navbar {
+            background: #ffffff;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ff7a59;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff7a59, #ff9472);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .dashboard-header {
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-title {
+            font-size: 2rem;
+            color: #33475b;
+            margin-bottom: 0.5rem;
+        }
+
+        .dashboard-subtitle {
+            color: #7c98b6;
+            font-size: 1rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-icon.deals { background: #e3f2fd; color: #1976d2; }
+        .stat-icon.contacts { background: #f3e5f5; color: #7b1fa2; }
+        .stat-icon.revenue { background: #e8f5e8; color: #388e3c; }
+        .stat-icon.conversion { background: #fff3e0; color: #f57c00; }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #33475b;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #7c98b6;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-change {
+            font-size: 0.85rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .stat-change.positive {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+
+        .stat-change.negative {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .deals-table {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .table-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #33475b;
+        }
+
+        .add-btn {
+            background: #ff7a59;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.2s ease;
+        }
+
+        .add-btn:hover {
+            background: #ff6842;
+        }
+
+        .table-content {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 1rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        th {
+            font-weight: 600;
+            color: #7c98b6;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            color: #33475b;
+        }
+
+        .deal-name {
+            font-weight: 500;
+            color: #33475b;
+        }
+
+        .deal-company {
+            color: #7c98b6;
+            font-size: 0.9rem;
+        }
+
+        .deal-amount {
+            font-weight: 600;
+            color: #2e7d32;
+        }
+
+        .deal-stage {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .stage-qualified { background: #e3f2fd; color: #1976d2; }
+        .stage-proposal { background: #fff3e0; color: #f57c00; }
+        .stage-negotiation { background: #f3e5f5; color: #7b1fa2; }
+        .stage-closed { background: #e8f5e8; color: #388e3c; }
+
+        .activity-feed {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .activity-item {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .activity-icon.call { background: #e3f2fd; color: #1976d2; }
+        .activity-icon.email { background: #f3e5f5; color: #7b1fa2; }
+        .activity-icon.meeting { background: #e8f5e8; color: #388e3c; }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .activity-description {
+            font-size: 0.9rem;
+            color: #7c98b6;
+            margin-bottom: 0.25rem;
+        }
+
+        .activity-time {
+            font-size: 0.8rem;
+            color: #99a5b3;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .action-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .action-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+        }
+
+        .action-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .action-icon.add-contact { background: #e3f2fd; color: #1976d2; }
+        .action-icon.create-deal { background: #e8f5e8; color: #388e3c; }
+        .action-icon.send-email { background: #f3e5f5; color: #7b1fa2; }
+
+        .action-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .action-description {
+            font-size: 0.9rem;
+            color: #7c98b6;
+        }
+
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .navbar {
+                padding: 1rem;
+            }
+            
+            .main-container {
+                padding: 0 1rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">CRM Pro</div>
+        <div class="user-info">
+            <span>Welcome back, Alex!</span>
+            <div class="avatar">A</div>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <div class="dashboard-header">
+            <h1 class="dashboard-title">Sales Dashboard</h1>
+            <p class="dashboard-subtitle">Track your sales performance and manage customer relationships</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon deals">💼</div>
+                <div class="stat-value">127</div>
+                <div class="stat-label">Open Deals</div>
+                <div class="stat-change positive">↗ +12% this month</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon contacts">👥</div>
+                <div class="stat-value">2,341</div>
+                <div class="stat-label">Total Contacts</div>
+                <div class="stat-change positive">↗ +5% this month</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon revenue">💰</div>
+                <div class="stat-value">$485K</div>
+                <div class="stat-label">Revenue This Month</div>
+                <div class="stat-change positive">↗ +23% this month</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon conversion">📈</div>
+                <div class="stat-value">34%</div>
+                <div class="stat-label">Conversion Rate</div>
+                <div class="stat-change negative">↘ -2% this month</div>
+            </div>
+        </div>
+
+        <div class="content-grid">
+            <div class="deals-table">
+                <div class="table-header">
+                    <h2 class="table-title">Active Deals</h2>
+                    <button class="add-btn" onclick="addNewDeal()">+ Add Deal</button>
+                </div>
+                <div class="table-content">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Deal Name</th>
+                                <th>Company</th>
+                                <th>Amount</th>
+                                <th>Stage</th>
+                                <th>Close Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dealsTable">
+                            <tr>
+                                <td>
+                                    <div class="deal-name">Enterprise Software License</div>
+                                    <div class="deal-company">TechCorp Inc.</div>
+                                </td>
+                                <td>TechCorp Inc.</td>
+                                <td class="deal-amount">$125,000</td>
+                                <td><span class="deal-stage stage-negotiation">Negotiation</span></td>
+                                <td>Dec 15, 2024</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="deal-name">Marketing Automation</div>
+                                    <div class="deal-company">StartupX</div>
+                                </td>
+                                <td>StartupX</td>
+                                <td class="deal-amount">$45,000</td>
+                                <td><span class="deal-stage stage-proposal">Proposal</span></td>
+                                <td>Jan 8, 2025</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="deal-name">CRM Implementation</div>
+                                    <div class="deal-company">Global Solutions</div>
+                                </td>
+                                <td>Global Solutions</td>
+                                <td class="deal-amount">$87,500</td>
+                                <td><span class="deal-stage stage-qualified">Qualified</span></td>
+                                <td>Feb 20, 2025</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="deal-name">API Integration Package</div>
+                                    <div class="deal-company">DevCompany</div>
+                                </td>
+                                <td>DevCompany</td>
+                                <td class="deal-amount">$32,000</td>
+                                <td><span class="deal-stage stage-closed">Closed Won</span></td>
+                                <td>Nov 30, 2024</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="activity-feed">
+                <div class="table-header">
+                    <h2 class="table-title">Recent Activity</h2>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon call">📞</div>
+                    <div class="activity-content">
+                        <div class="activity-title">Called John Smith</div>
+                        <div class="activity-description">Discussed proposal terms for TechCorp deal</div>
+                        <div class="activity-time">2 hours ago</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon email">✉️</div>
+                    <div class="activity-content">
+                        <div class="activity-title">Email sent to StartupX</div>
+                        <div class="activity-description">Follow-up on marketing automation demo</div>
+                        <div class="activity-time">5 hours ago</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon meeting">📅</div>
+                    <div class="activity-content">
+                        <div class="activity-title">Meeting scheduled</div>
+                        <div class="activity-description">Product demo with Global Solutions team</div>
+                        <div class="activity-time">1 day ago</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon call">📞</div>
+                    <div class="activity-content">
+                        <div class="activity-title">Missed call from DevCompany</div>
+                        <div class="activity-description">Follow-up needed on integration timeline</div>
+                        <div class="activity-time">2 days ago</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="quick-actions">
+            <div class="action-card" onclick="quickAction('contact')">
+                <div class="action-icon add-contact">👤</div>
+                <div class="action-title">Add New Contact</div>
+                <div class="action-description">Create a new contact and start building relationships</div>
+            </div>
+            <div class="action-card" onclick="quickAction('deal')">
+                <div class="action-icon create-deal">💼</div>
+                <div class="action-title">Create Deal</div>
+                <div class="action-description">Set up a new sales opportunity</div>
+            </div>
+            <div class="action-card" onclick="quickAction('email')">
+                <div class="action-icon send-email">📧</div>
+                <div class="action-title">Send Campaign</div>
+                <div class="action-description">Launch an email marketing campaign</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample data for dynamic functionality
+        const sampleDeals = [
+            {
+                name: "Cloud Migration Project",
+                company: "Enterprise Corp",
+                amount: "$235,000",
+                stage: "qualified",
+                stageText: "Qualified",
+                closeDate: "Mar 15, 2025"
+            },
+            {
+                name: "Security Audit Package",
+                company: "FinTech Solutions",
+                amount: "$67,800",
+                stage: "proposal",
+                stageText: "Proposal",
+                closeDate: "Jan 22, 2025"
+            }
+        ];
+
+        function addNewDeal() {
+            const table = document.getElementById('dealsTable');
+            const randomDeal = sampleDeals[Math.floor(Math.random() * sampleDeals.length)];
+            
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>
+                    <div class="deal-name">${randomDeal.name}</div>
+                    <div class="deal-company">${randomDeal.company}</div>
+                </td>
+                <td>${randomDeal.company}</td>
+                <td class="deal-amount">${randomDeal.amount}</td>
+                <td><span class="deal-stage stage-${randomDeal.stage}">${randomDeal.stageText}</span></td>
+                <td>${randomDeal.closeDate}</td>
+            `;
+            
+            // Add with animation
+            row.style.opacity = '0';
+            row.style.transform = 'translateY(20px)';
+            table.appendChild(row);
+            
+            setTimeout(() => {
+                row.style.transition = 'all 0.3s ease';
+                row.style.opacity = '1';
+                row.style.transform = 'translateY(0)';
+            }, 100);
+        }
+
+        function quickAction(type) {
+            const messages = {
+                contact: "New contact form opened! 👤",
+                deal: "Deal creation wizard launched! 💼",
+                email: "Email campaign builder opened! 📧"
+            };
+            
+            // Simple notification
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #4caf50;
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                z-index: 1000;
+                font-weight: 500;
+            `;
+            notification.textContent = messages[type];
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Add some dynamic updates to stats
+        function updateStats() {
+            const statValues = document.querySelectorAll('.stat-value');
+            statValues.forEach(stat => {
+                if (stat.textContent.includes('$')) {
+                    // Simulate revenue growth
+                    const currentValue = parseInt(stat.textContent.replace(/[$K,]/g, ''));
+                    const newValue = currentValue + Math.floor(Math.random() * 10);
+                    stat.textContent = `$${newValue}K`;
+                }
+            });
+        }
+
+        // Update stats every 30 seconds for demo
+        setInterval(updateStats, 30000);
+
+        // Add hover effects and interactions
+        document.querySelectorAll('.stat-card').forEach(card => {
+            card.addEventListener('click', () => {
+                card.style.transform = 'scale(0.98)';
+                setTimeout(() => {
+                    card.style.transform = '';
+                }, 100);
+            });
+        });
+    </script>
+</body>
+</html>
